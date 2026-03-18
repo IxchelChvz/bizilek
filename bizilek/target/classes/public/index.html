@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>inmo. — Encuentra tu hogar</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════
+       CURSOR PERSONALIZADO
+  ══════════════════════════════════════════════ -->
+  <div class="cursor" id="cursor"></div>
+
+  <!-- ══════════════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════════════ -->
+  <nav class="navbar">
+    <a href="/" class="nav-logo">inmo<span class="logo-dot">.</span></a>
+
+    <div class="nav-modes">
+      <button type="button" class="mode-btn active" data-mode="venta"    onclick="setMode(this,'venta')">Comprar</button>
+      <button type="button" class="mode-btn"        data-mode="alquiler" onclick="setMode(this,'alquiler')">Alquilar</button>
+      <button type="button" class="mode-btn"        data-mode="nueva"    onclick="setMode(this,'nueva')">Obra nueva</button>
+    </div>
+
+    <div class="nav-right">
+      <a href="#valoracion" class="nav-link">Valorar</a>
+      <a href="#"           class="nav-link">Agencias</a>
+      <button type="button" class="btn-publish" onclick="openModal('register')">Publicar</button>
+    </div>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════════ -->
+  <section class="hero">
+    <div class="hero-left">
+      <p class="hero-eyebrow">
+        <span class="eyebrow-line"></span> Portal inmobiliario
+      </p>
+      <h1 class="hero-title">
+        El hogar<br >
+        que <em>buscas</em><br >
+        existe.
+      </h1>
+      <p class="hero-sub">
+        <span id="stat-total">182.000</span> propiedades en toda España.<br >
+        Datos reales, sin ruido.
+      </p>
+
+      <!-- Search bar -->
+      <form class="search-bar" id="searchForm" onsubmit="handleSearch(event)">
+        <div class="search-input-wrap">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input id="searchQ" type="text" placeholder="Ciudad, barrio, código postal…" class="search-input" autocomplete="off" >
+        </div>
+        <div class="search-divider"></div>
+        <select id="searchCiudad" class="search-select" onchange="">
+          <option value="">Cualquier ciudad</option>
+        </select>
+        <div class="search-divider"></div>
+        <select id="searchPrecio" class="search-select">
+          <option value="">Precio</option>
+          <option value="0,150000">Hasta 150k</option>
+          <option value="0,300000">Hasta 300k</option>
+          <option value="0,500000">Hasta 500k</option>
+          <option value="500000,99999999">Más de 500k</option>
+        </select>
+        <button type="submit" class="search-btn">Buscar →</button>
+      </form>
+    </div>
+
+    <!-- Sidebar mini-cards -->
+    <div class="hero-sidebar" id="heroSidebar">
+      <!-- JS las rellena con las 3 destacadas -->
+      <div class="mini-card skeleton-card"></div>
+      <div class="mini-card skeleton-card"></div>
+      <div class="mini-card skeleton-card"></div>
+    </div>
+  </section>
+
+  <!-- Stats bar -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <span class="stat-val" id="statTotal">…</span>
+      <span class="stat-lbl">Propiedades activas</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" id="statVenta">…</span>
+      <span class="stat-lbl">En venta</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" id="statAlquiler">…</span>
+      <span class="stat-lbl">En alquiler</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-val" id="statPrecioMedio">…</span>
+      <span class="stat-lbl">Precio medio venta</span>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       LISTINGS
+  ══════════════════════════════════════════════ -->
+  <section class="listings-section" id="listings">
+    <div class="listings-header">
+      <div>
+        <p class="section-label">Resultados</p>
+        <h2 class="section-title" id="resultsTitle">Más buscados ahora</h2>
+      </div>
+      <select class="sort-select" id="sortSelect" onchange="applySort()">
+        <option value="created_at DESC">Más reciente</option>
+        <option value="precio_asc">Precio ↑</option>
+        <option value="precio_desc">Precio ↓</option>
+        <option value="area_desc">Mayor superficie</option>
+        <option value="vistas_desc">Más vistos</option>
+      </select>
+    </div>
+
+    <!-- Filter chips -->
+    <div class="filter-chips" id="filterChips">
+      <button type="button" class="chip active" data-tipo="" onclick="setChip(this,'')">Todo</button>
+      <button type="button" class="chip" data-tipo="piso"    onclick="setChip(this,'piso')">Piso</button>
+      <button type="button" class="chip" data-tipo="casa"    onclick="setChip(this,'casa')">Casa</button>
+      <button type="button" class="chip" data-tipo="atico"   onclick="setChip(this,'atico')">Ático</button>
+      <button type="button" class="chip" data-tipo="estudio" onclick="setChip(this,'estudio')">Estudio</button>
+      <button type="button" class="chip" data-tipo="terraza" onclick="setChip(this,'terraza')">Con terraza</button>
+      <button type="button" class="chip" data-tipo="garaje"  onclick="setChip(this,'garaje')">Con garaje</button>
+    </div>
+
+    <!-- Grid -->
+    <div class="property-grid" id="propertyGrid">
+      <!-- JS renderiza aquí -->
+    </div>
+
+    <!-- Paginación -->
+    <div class="pagination" id="pagination"></div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       CTA — VALORACIÓN
+  ══════════════════════════════════════════════ -->
+  <section class="valuation-section" id="valoracion">
+    <div class="valuation-left">
+      <p class="section-label">Gratis · Inmediato · Sin compromiso</p>
+      <h2 class="valuation-title">¿Cuánto vale<br >tu piso?</h2>
+      <p class="valuation-sub">Valoración basada en precios reales de transacción en tu zona.</p>
+
+      <div id="valuationResult" class="valuation-result" style="display:none"></div>
+
+      <form id="valuationForm" class="valuation-form" onsubmit="submitValuation(event)">
+        <input type="text" id="valAddr" placeholder="Dirección completa" class="val-input" required >
+        <div class="val-row">
+          <select id="valCiudad" class="val-select" required>
+            <option value="">Ciudad</option>
+          </select>
+          <select id="valTipo" class="val-select">
+            <option value="piso">Piso</option>
+            <option value="casa">Casa</option>
+            <option value="atico">Ático</option>
+            <option value="estudio">Estudio</option>
+          </select>
+        </div>
+        <div class="val-row">
+          <input type="number" id="valMetros" placeholder="Metros m²" class="val-input" min="10" required >
+          <input type="number" id="valHab"    placeholder="Habitaciones" class="val-input" min="1" >
+        </div>
+        <button type="submit" class="btn-black w100">Valorar ahora →</button>
+      </form>
+    </div>
+
+    <div class="valuation-right">
+      <div class="val-bg-text">€</div>
+      <div class="val-content">
+        <div class="val-highlight">+€12,400</div>
+        <div class="val-highlight-sub">precio medio por encima de mercado</div>
+        <div class="val-stats-grid">
+          <div><span class="vs-num">182k</span><span class="vs-lbl">Analizadas</span></div>
+          <div><span class="vs-num">94%</span><span class="vs-lbl">Precisión</span></div>
+          <div><span class="vs-num">2min</span><span class="vs-lbl">Tiempo</span></div>
+          <div><span class="vs-num">€0</span><span class="vs-lbl">Coste</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════════ -->
+  <footer class="footer">
+    <a href="/" class="footer-logo">inmo<span class="logo-dot">.</span></a>
+    <ul class="footer-links">
+      <li><a href="#">Comprar</a></li>
+      <li><a href="#">Alquilar</a></li>
+      <li><a href="#valoracion">Valorar</a></li>
+      <li><a href="#">Agencias</a></li>
+      <li><a href="#">Blog</a></li>
+      <li><a href="#">Privacidad</a></li>
+    </ul>
+    <span class="footer-copy">© 2026 inmo. Barcelona.</span>
+  </footer>
+
+  <!-- ══════════════════════════════════════════════
+       MODAL — DETALLE PROPIEDAD
+  ══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="detailOverlay" onclick="closeModal('detail')">
+    <div class="modal-box" id="detailBox" onclick="event.stopPropagation()">
+      <button type="button" class="modal-close" onclick="closeModal('detail')">✕</button>
+      <div id="detailContent"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       MODAL — LOGIN / REGISTRO
+  ══════════════════════════════════════════════ -->
+  <div class="modal-overlay" id="authOverlay" onclick="closeModal('auth')">
+    <div class="modal-box modal-small" onclick="event.stopPropagation()">
+      <button type="button" class="modal-close" onclick="closeModal('auth')">✕</button>
+      <div id="authContent"></div>
+    </div>
+  </div>
+
+  <script src="main.js"></script>
+</body>
+</html>
